@@ -67,6 +67,8 @@ Una skill es un conjunto de instrucciones y archivos de contexto que se cargan a
 |-----------|-----------|
 |  **Diseños de registro** | Variables, categorías y codificaciones para los diseños PRE y POS del 4T2023 — EPH Continua y Tot Urbano |
 |  **Reglas metodológicas** | Uso correcto de ponderadores (`PONDERA`, `PONDIH`, `PONDII`), panel rotante, quiebres de serie, informalidad laboral, indicadores del mercado de trabajo |
+|  **Referencia de packages** | Documentación completa del paquete `eph` para R y la librería `pyeph` para Python: funciones, parámetros y ejemplos |
+|  **Clasificador CNO 2001** | El Clasificador Nacional de Ocupaciones completo (40 páginas INDEC) con su estructura de 5 dígitos y la tabla de todas las ocupaciones |
 |  **Orientación automática** | La skill guía al modelo para estructurar pipelines de datos respetando la metodología INDEC sin que vos le expliques cada detalle |
 
 ---
@@ -109,13 +111,18 @@ skill-eph/
     │   ├── EPH_PRE_4T2023.md
     │   ├── EPH_TotUrbano_POS_4T2023.md
     │   └── EPH_TotUrbano_PRE_4T2023.md
-    └── methodology/      # Documentación metodológica curada
-        ├── ponderadores.md
-        ├── panel_rotante.md
-        ├── quiebre_serie_4t2023.md
-        ├── informalidad_laboral.md
-        ├── indicadores_mercado_laboral.md
-        └── eph_continua_vs_total_urbano.md
+    ├── methodology/      # Documentación metodológica curada
+    │   ├── ponderadores.md
+    │   ├── panel_rotante.md
+    │   ├── quiebre_serie_4t2023.md
+    │   ├── informalidad_laboral.md
+    │   ├── indicadores_mercado_laboral.md
+    │   └── eph_continua_vs_total_urbano.md
+    ├── tools/            # Referencia de packages de procesamiento EPH
+    │   ├── eph_package_r.md   # Paquete `eph` para R (ropensci, v1.0.2)
+    │   └── pyeph_package.md   # Librería `pyeph` para Python
+    └── classifiers/      # Clasificadores oficiales INDEC
+        └── cno_2001.md        # Clasificador Nacional de Ocupaciones 2001
 ```
 
 ---

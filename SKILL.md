@@ -1,11 +1,162 @@
-# Skill EPH (Encuesta Permanente de Hogares)
+---
+name: eph
+description: >
+  Diseño de registro y metodología de la Encuesta Permanente de Hogares (EPH) del INDEC.
+  Lee automáticamente el archivo de diseño correcto y aplica orientación metodológica
+  antes de generar scripts R o Python con microdatos EPH.
+  Trigger: cuando el usuario pide un script R o Python para procesar microdatos de la EPH,
+  menciona variables EPH (CODUSU, PONDERA, ESTADO, etc.), o pide análisis de bases
+  usu_hogar / usu_individual.
+license: Apache-2.0
+metadata:
+  author: claudiodavi
+  version: "1.0"
+---
 
-Este skill permite a los modelos de lenguaje generar código (R/Python) e interactuar con los microdatos de la Encuesta Permanente de Hogares (EPH) del INDEC sin cometer errores metodológicos.
+## Cuando usar este skill
 
-## Capacidades
-- Conocimiento profundo de los diseños de registro (PRE y POS 4T2023).
-- Reglas metodológicas sobre informalidad laboral, panel rotante y uso correcto de ponderadores.
-- Capacidad para estructurar pipelines de datos usando `PONDERA`, `PONDIH`, etc.
+Cargar cuando el usuario:
+- Pide un script en R o Python para procesar microdatos de la EPH
+- Menciona variables como CODUSU, PONDERA, ESTADO, PP03C, INGOT, CH04, PP04D_COD, etc.
+- Hace referencia a las bases `usu_hogar` o `usu_individual`
+- Pregunta sobre la estructura de las bases EPH del INDEC
+- Pide calcular tasas de empleo, desempleo, subocupación, ingresos o informalidad
+- Usa los paquetes `eph` (R) o `pyeph` (Python)
+- Pregunta sobre ocupaciones, clasificación de ocupaciones, CNO, o la variable PP04D_COD
 
-## Archivos de Contexto
-Los archivos dentro de `assets/` deben ser cargados en el contexto del agente antes de procesar tareas relacionadas a la EPH.
+---
+
+## REGLA CRÍTICA — Nunca escribir código sin leer el diseño de registro
+
+**Antes de escribir cualquier línea de código que referencie variables de la EPH:**
+1. Determinar el archivo de diseño correcto (Step 1)
+2. Leerlo con el tool Read (Step 2)
+3. Solo entonces generar el código (Step 3)
+
+Los nombres de variables, valores codificados y longitudes son exactos en esos archivos.
+Cualquier código escrito de memoria puede ser incorrecto.
+
+---
+
+## Step 1 — Determinar qué archivo de diseño leer
+
+### ¿Qué tipo de encuesta?
+
+| La consulta menciona...              | Tipo             |
+|:-------------------------------------|:-----------------|
+| "Total Urbano" / "tot urbano"        | EPH Total Urbano |
+| Sin mención especial (default)       | EPH Continua     |
+
+### ¿Qué período?
+
+| Período de los datos                          | Cuándo aplica        |
+|:----------------------------------------------|:---------------------|
+| **PRE 4T2023** | Cualquier trimestre ANTES del 4T2023 (ej: 1T2016, 3T2023) |
+| **POS 4T2023** | 4T2023 en adelante (4T2023, 1T2024, 2T2024...)            |
+
+⚠️ Si el usuario no especificó el período, **preguntar antes de continuar**.
+
+### Tabla de decisión → archivo a leer
+
+| Tipo           | Período     | Archivo                                                      |
+|:---------------|:------------|:-------------------------------------------------------------|
+| EPH Continua   | PRE 4T2023  | `~/.claude/skills/eph/assets/design/EPH_PRE_4T2023.md`      |
+| EPH Continua   | POS 4T2023  | `~/.claude/skills/eph/assets/design/EPH_POS_4T2023.md`      |
+| Total Urbano   | PRE 4T2023  | `~/.claude/skills/eph/assets/design/EPH_TotUrbano_PRE_4T2023.md` |
+| Total Urbano   | POS 4T2023  | `~/.claude/skills/eph/assets/design/EPH_TotUrbano_POS_4T2023.md` |
+
+---
+
+## Step 2 — Leer el archivo con el tool Read
+
+Usar el tool **Read** con el path absoluto determinado arriba. Leer el archivo completo.
+
+---
+
+## Step 3 — Aplicar reglas críticas (siempre activas)
+
+Antes de generar código, verificar estas 4 condiciones:
+
+### 1. Quiebre de serie 4T2023
+Si los datos cruzan el 4T2023 (ej: serie 2019-2024), advertir que la serie no es
+estrictamente comparable sin empalme. Ver detalles:
+`~/.claude/skills/eph/assets/methodology/quiebre_serie_4t2023.md`
+
+### 2. Ponderadores
+¿El código usa ponderadores? Si no, recordar que la EPH es muestral y requiere ponderar.
+- Personas → `PONDERA`
+- Hogares → `PONDIH`
+- Ingresos de ocupación principal → `PONDIIO`
+
+### 3. Merge Hogar/Personas
+Si el código une las dos bases, verificar que use las 4 keys:
+`CODUSU`, `NRO_HOGAR`, `ANO4`, `TRIMESTRE`
+
+### 4. EPH Continua vs Total Urbano
+Si el análisis compara o combina ambas fuentes, advertir que no son comparables directamente
+(distinta cobertura geográfica). Ver:
+`~/.claude/skills/eph/assets/methodology/eph_continua_vs_total_urbano.md`
+
+---
+
+## Step 4 — Cargar metodología adicional bajo demanda
+
+Leer el archivo correspondiente solo si la consulta lo requiere:
+
+| La consulta involucra...                         | Leer este archivo                    |
+|:-------------------------------------------------|:-------------------------------------|
+| Tasas de actividad, empleo, desocupación, subocupación | `assets/methodology/indicadores_mercado_laboral.md` |
+| Cómo ponderar, qué ponderador usar               | `assets/methodology/ponderadores.md` |
+| Series de tiempo pre/pos 4T2023                  | `assets/methodology/quiebre_serie_4t2023.md` |
+| Diferencias entre EPH continua y Total Urbano    | `assets/methodology/eph_continua_vs_total_urbano.md` |
+| Panel rotante, seguimiento de individuos         | `assets/methodology/panel_rotante.md` |
+| Informalidad laboral, empleo no registrado       | `assets/methodology/informalidad_laboral.md` |
+
+Los paths completos son `~/.claude/skills/eph/assets/methodology/<archivo>`.
+
+---
+
+## Step 5 — Cargar referencia de packages y clasificadores bajo demanda
+
+Leer solo cuando la consulta específicamente lo requiera:
+
+| La consulta involucra...                                          | Leer este archivo                                      |
+|:------------------------------------------------------------------|:-------------------------------------------------------|
+| Funciones del paquete `eph` de R (`get_microdata`, `organize_cno`, etc.) | `assets/tools/eph_package_r.md`             |
+| Funciones de `pyeph` de Python (`pyeph.get`, `LaborMarket`, etc.)        | `assets/tools/pyeph_package.md`             |
+| Clasificación de ocupaciones, variable PP04D_COD, CNO 2001                | `assets/classifiers/cno_2001.md`            |
+
+Los paths completos son `~/.claude/skills/eph/assets/tools/<archivo>` o `~/.claude/skills/eph/assets/classifiers/<archivo>`.
+
+**Cuándo leer eph_package_r.md:**
+- El usuario pide un script R con `eph`, `get_microdata()`, `organize_panels()`, `calculate_poverty()`, `organize_cno()`
+- El usuario no sabe qué funciones tiene el paquete
+
+**Cuándo leer pyeph_package.md:**
+- El usuario pide un script Python con `pyeph`, `pyeph.get()`, `LaborMarket`, `Poverty`
+- El usuario no sabe la API de pyeph
+
+**Cuándo leer cno_2001.md:**
+- El usuario pide clasificar o interpretar ocupaciones
+- El usuario menciona PP04D_COD, CNO, `organize_cno()`, o calificación/jerarquía ocupacional
+- El usuario quiere saber qué valor de PP04D_COD corresponde a qué ocupación
+
+---
+
+## Packages recomendados
+
+| Lenguaje | Package          | Repositorio                                  | Doc local |
+|:---------|:-----------------|:---------------------------------------------|:----------|
+| R        | `eph` (ropensci) | https://github.com/ropensci/eph              | `assets/tools/eph_package_r.md` |
+| Python   | `pyeph`          | https://github.com/institutohumai/pyeph      | `assets/tools/pyeph_package.md` |
+
+---
+
+## Advertencias que incluir siempre en el output
+
+Agregar al final de cada script generado las advertencias que apliquen:
+
+- **Quiebre 4T2023:** si la serie cruza ese período
+- **Ponderadores:** si el código no pondera explícitamente
+- **Cobertura:** especificar si es "31 Aglomerados Urbanos" o "Total Aglomerados Urbanos"
+- **CODUSU no es único por trimestre:** aclarar si el usuario arma un panel
