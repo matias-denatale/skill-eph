@@ -158,5 +158,5 @@ Agregar al final de cada script generado las advertencias que apliquen:
 
 - **Quiebre 4T2023:** si la serie cruza ese período
 - **Ponderadores:** si el código no pondera explícitamente
-- **Cobertura:** especificar si es "31 Aglomerados Urbanos" o "Total Aglomerados Urbanos"
+- **Cobertura:** en subtítulos y referencias usar "EPH 31 aglomerados urbanos" (EPH trimestral) o "EPH Total Aglomerados Urbanos" (Total Urbano). No decir "EPH continua, 31 aglomerados urbanos" — la palabra "continua" se omite.
 - **CODUSU no es único por trimestre:** aclarar si el usuario arma un panel
