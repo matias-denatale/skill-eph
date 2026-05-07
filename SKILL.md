@@ -160,3 +160,30 @@ Agregar al final de cada script generado las advertencias que apliquen:
 - **Ponderadores:** si el código no pondera explícitamente
 - **Cobertura:** en subtítulos y referencias usar "EPH 31 aglomerados urbanos" (EPH trimestral) o "EPH Total Aglomerados Urbanos" (Total Urbano). No decir "EPH continua, 31 aglomerados urbanos" — la palabra "continua" se omite.
 - **CODUSU no es único por trimestre:** aclarar si el usuario arma un panel
+
+---
+
+## Notas metodológicas confirmadas en uso real
+
+### Jubilados activos — no filtrar por CAT_INAC
+
+**NUNCA** usar `CAT_INAC == 1` como única condición para identificar perceptores de jubilación/pensión.
+`CAT_INAC == 1` captura solo a los **inactivos** que se declaran jubilados/pensionados,
+pero excluye a quienes **cobran una jubilación o pensión y además trabajan** (ocupados o activos en el mercado laboral).
+
+El filtro correcto para identificar a todos los perceptores de ingreso jubilatorio es:
+
+```r
+# PRE 4T2023
+filter(V2_M > 0)
+
+# POS 4T2023
+filter(V2_01_M + V2_02_M + V2_03_M > 0)
+
+# O bien, después de construir la variable armonizada ing_jub:
+filter(ing_jub > 0)
+```
+
+Usar `CAT_INAC == 1` solo si el análisis busca **específicamente** describir la situación
+de los inactivos que se autoidentifican como jubilados (ej: composición del grupo inactivo),
+no para calcular el ingreso jubilatorio promedio o la cobertura previsional.
