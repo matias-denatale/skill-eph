@@ -52,7 +52,7 @@ Cualquier código escrito de memoria puede ser incorrecto.
 | Período de los datos                          | Cuándo aplica        |
 |:----------------------------------------------|:---------------------|
 | **PRE 4T2023** | Cualquier trimestre ANTES del 4T2023 (ej: 1T2016, 3T2023) |
-| **POS 4T2023** | 4T2023 en adelante (4T2023, 1T2024, 2T2024...)            |
+| **POST 4T2023** | 4T2023 en adelante (4T2023, 1T2024, 2T2024...)            |
 
 ⚠️ Si el usuario no especificó el período, **preguntar antes de continuar**.
 
@@ -61,9 +61,9 @@ Cualquier código escrito de memoria puede ser incorrecto.
 | Tipo           | Período     | Archivo                                                      |
 |:---------------|:------------|:-------------------------------------------------------------|
 | EPH Continua   | PRE 4T2023  | `~/.claude/skills/eph/assets/design/EPH_PRE_4T2023.md`      |
-| EPH Continua   | POS 4T2023  | `~/.claude/skills/eph/assets/design/EPH_POS_4T2023.md`      |
+| EPH Continua   | POST 4T2023  | `~/.claude/skills/eph/assets/design/EPH_POST_4T2023.md`      |
 | Total Urbano   | PRE 4T2023  | `~/.claude/skills/eph/assets/design/EPH_TotUrbano_PRE_4T2023.md` |
-| Total Urbano   | POS 4T2023  | `~/.claude/skills/eph/assets/design/EPH_TotUrbano_POS_4T2023.md` |
+| Total Urbano   | POST 4T2023  | `~/.claude/skills/eph/assets/design/EPH_TotUrbano_POST_4T2023.md` |
 
 ---
 
@@ -177,7 +177,7 @@ El filtro correcto para identificar a todos los perceptores de ingreso jubilator
 # PRE 4T2023
 filter(V2_M > 0)
 
-# POS 4T2023
+# POST 4T2023
 filter(V2_01_M + V2_02_M + V2_03_M > 0)
 
 # O bien, después de construir la variable armonizada ing_jub:
@@ -187,3 +187,24 @@ filter(ing_jub > 0)
 Usar `CAT_INAC == 1` solo si el análisis busca **específicamente** describir la situación
 de los inactivos que se autoidentifican como jubilados (ej: composición del grupo inactivo),
 no para calcular el ingreso jubilatorio promedio o la cobertura previsional.
+
+---
+
+### Clasificación TCP / TCSNP para cuenta propia (CAT_OCUP == 2)
+
+Cuando se necesita dividir la cuenta propia en calificada vs. no calificada, usar el **5° dígito de `PP04D_COD`** (CNO 2001):
+
+```r
+cno_calific <- substr(as.character(PP04D_COD), 5, 5)
+
+cat_cp <- case_when(
+  cno_calific %in% c("1", "2") ~ "TCP",    # Profesional (1) + Técnico (2)
+  cno_calific %in% c("3", "4") ~ "TCSNP",  # Operativo (3) + No calificado (4)
+  TRUE                          ~ NA_character_
+)
+```
+
+- **TCP** (Trabajadores Cuenta Propia calificados): calificación 1 + 2
+- **TCSNP** (Cuenta Propia sin calificación/operativos): calificación 3 + 4
+
+Esta clasificación es consistente para **ambos períodos PRE y POST 4T2023** — `PP04D_COD` no cambió con el nuevo cuestionario.
