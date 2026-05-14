@@ -7,12 +7,15 @@ ASSETS = Path(__file__).parent / "assets"
 mcp = FastMCP(
     "eph",
     instructions=(
-        "EPH INDEC microdata expert. "
-        "Always call the relevant tool BEFORE writing any analysis code: "
-        "get_design_record for variable names and codes, "
-        "get_methodology for weighting rules and indicators, "
-        "get_package_docs for correct API usage. "
-        "Never guess variable names, weight columns, or function signatures."
+        "You are an EPH INDEC microdata assistant. "
+        "MANDATORY WORKFLOW — follow this every time, no exceptions:\n"
+        "STEP 1: Call eph_setup() FIRST. Always. Before writing a single line of code.\n"
+        "STEP 2: Call get_design_record() to get exact variable names and codes.\n"
+        "STEP 3: Call get_package_docs() to get the correct function signatures.\n"
+        "STEP 4: Call get_methodology() if the task involves weights, rates, or indicators.\n"
+        "NEVER write code from memory. Variable names, weight columns, and function names "
+        "MUST come from the tools, not from training data. "
+        "Writing code without calling the tools first WILL produce incorrect results."
     ),
 )
 
@@ -38,17 +41,59 @@ _PACKAGES = {
     "python": "pyeph_package.md",
 }
 
+_CRITICAL_RULES = """
+CRITICAL EPH RULES — memorize these before writing any code:
+
+1. WEIGHTS — never skip, never guess:
+   - Persons  → PONDERA
+   - Households → PONDIH
+   - Labor income (main job only) → PONDIIO
+   Using the wrong weight produces incorrect population estimates.
+
+2. MERGE KEYS — joining hogar + individual requires ALL FOUR keys:
+   CODUSU + NRO_HOGAR + ANO4 + TRIMESTRE
+   Missing any one key causes duplicated or missing rows.
+
+3. SERIES BREAK at 4T2023 — the survey redesign changed variable names and codes.
+   Data before and after 4T2023 is NOT directly comparable without harmonization.
+   Always ask the user which period they are working with.
+
+4. VARIABLE NAMES — do not guess. Call get_design_record() first.
+   Common mistakes from training data: wrong column names, wrong category codes,
+   variables that exist in one period but not the other.
+
+5. PACKAGE FUNCTIONS — do not guess. Call get_package_docs() first.
+   Common mistakes: wrong function names, wrong argument names, outdated API.
+"""
+
 
 @mcp.tool()
-def list_topics() -> dict:
+def eph_setup() -> dict:
     """
-    Returns all valid parameter values for every EPH tool.
-    Call this first when unsure which topic or record type to request.
+    CALL THIS FIRST — before writing any code or referencing any variable.
+
+    Returns the mandatory workflow, critical rules, and available topics.
+    This is step 1 of every EPH task. No exceptions.
+
+    After calling this, proceed to:
+    - get_design_record() → exact variable names for the dataset
+    - get_package_docs()  → correct function signatures for R or Python
+    - get_methodology()   → weighting rules, rate formulas, indicator definitions
     """
     return {
-        "get_design_record.tipo": list(_DESIGN.keys()),
-        "get_methodology.tema": list(_METHODOLOGY.keys()),
-        "get_package_docs.lang": list(_PACKAGES.keys()),
+        "mandatory_workflow": [
+            "1. Call eph_setup() — you already did this, good.",
+            "2. Call get_design_record(tipo) — get exact variable names before writing code.",
+            "3. Call get_package_docs(lang) — get correct function signatures before importing.",
+            "4. Call get_methodology(tema) — only if task involves weights, rates, or indicators.",
+            "5. NOW write the code — using only names and functions from the tools above.",
+        ],
+        "critical_rules": _CRITICAL_RULES,
+        "available_topics": {
+            "get_design_record(tipo)": list(_DESIGN.keys()),
+            "get_methodology(tema)": list(_METHODOLOGY.keys()),
+            "get_package_docs(lang)": list(_PACKAGES.keys()),
+        },
     }
 
 
@@ -64,16 +109,19 @@ def _invalid(param: str, value: str, valid: dict) -> str:
 @mcp.tool()
 def get_design_record(tipo: str) -> str:
     """
-    Returns the complete variable dictionary (diseño de registro) for EPH microdata files.
+    Returns the OFFICIAL variable dictionary for EPH microdata files.
+
+    Call eph_setup() first if you have not already.
+    Call this BEFORE writing any code that references variable names or category codes.
+    Do NOT use variable names from memory — they change between periods.
 
     tipo values:
-      "continua_pre"       — EPH Continua, trimestres before 4T2023
-      "continua_post"      — EPH Continua, from 4T2023 onward (new design)
+      "continua_pre"       — EPH Continua, quarters BEFORE 4T2023
+      "continua_post"      — EPH Continua, FROM 4T2023 onward (redesigned variables)
       "total_urbano_pre"   — EPH Total Urbano, before 4T2023
       "total_urbano_post"  — EPH Total Urbano, from 4T2023 onward
 
-    Call this BEFORE referencing any variable name (ESTADO, CAT_OCUP, CH06, etc.)
-    or any column from usu_hogar / usu_individual base files.
+    If the user has not specified the period, ASK before calling this tool.
     """
     if tipo not in _DESIGN:
         return _invalid("tipo", tipo, _DESIGN)
@@ -83,15 +131,18 @@ def get_design_record(tipo: str) -> str:
 @mcp.tool()
 def get_methodology(tema: str) -> str:
     """
-    Returns methodological documentation for a specific EPH topic.
+    Returns official EPH methodological documentation for a specific topic.
+
+    Call eph_setup() first if you have not already.
+    Call this BEFORE computing rates, applying weights, or building indicators.
 
     tema values:
       "que_es_la_eph"                — survey overview, periodicity, geographic coverage
       "panel_rotante"                — rotating panel design, cohort tracking across waves
-      "ponderadores"                 — PONDERA, PONDIH, PONDIIO: when and how to apply each
-      "indicadores_mercado_laboral"  — unemployment/employment rate formulas, INDEC definitions
+      "ponderadores"                 — PONDERA / PONDIH / PONDIIO: which to use and when
+      "indicadores_mercado_laboral"  — unemployment and employment rate formulas (INDEC official)
       "informalidad_laboral"         — informal employment classification rules
-      "quiebre_serie_4t2023"         — series break at 4T2023, comparability across periods
+      "quiebre_serie_4t2023"         — series break details, what changed, how to handle it
       "eph_continua_vs_total_urbano" — coverage and methodological differences between variants
     """
     if tema not in _METHODOLOGY:
@@ -102,10 +153,11 @@ def get_methodology(tema: str) -> str:
 @mcp.tool()
 def get_classifiers() -> str:
     """
-    Returns the complete CNO 2001 (Clasificador Nacional de Ocupaciones) reference.
+    Returns the complete CNO 2001 (Clasificador Nacional de Ocupaciones).
 
-    Use to correctly interpret or recode the P47T variable in individual-level records.
-    Includes all 5-digit occupation codes with descriptions and category groupings.
+    Call eph_setup() first if you have not already.
+    Use this to correctly interpret or recode occupation variables (PP04D_COD, P47T).
+    Includes all 5-digit codes, descriptions, and qualification categories.
     """
     return _read(ASSETS / "classifiers" / "cno_2001.md")
 
@@ -113,13 +165,15 @@ def get_classifiers() -> str:
 @mcp.tool()
 def get_package_docs(lang: str) -> str:
     """
-    Returns the full API reference for the official EPH data-loading package.
+    Returns the OFFICIAL API reference for the EPH data package.
+
+    Call eph_setup() first if you have not already.
+    Call this BEFORE writing any import statement or function call.
+    Do NOT use function names or argument names from memory — they may be wrong.
 
     lang values:
       "r"      — `eph` R package: get_microdata(), organize_labels(), calculate_tabulates()
-      "python" — `pyeph` library: download(), organize(), indicator functions
-
-    Call this BEFORE writing any import or function call that uses these packages.
+      "python" — `pyeph` library: download(), organize(), LaborMarket, Poverty classes
     """
     if lang not in _PACKAGES:
         return _invalid("lang", lang, _PACKAGES)
