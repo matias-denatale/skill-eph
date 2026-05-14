@@ -253,7 +253,34 @@ organize_panels(
 
 **Nota:** Usa `CODUSU` para el seguimiento de personas entre trimestres.
 
-**Ejemplo:**
+**⚠️ GOTCHA — columnas duplicadas al hacer `pivot_longer()`:**
+`organize_panels()` devuelve las variables de interés **dos veces**: con sufijo `_t0`/`_t1` Y sin sufijo. Si luego se hace `pivot_longer()`, falla con `Names must be unique` porque `ANO4`, `TRIMESTRE`, `ESTADO`, etc. aparecen duplicadas.
+
+**Fix:** antes de pivotar, descartar las columnas sin sufijo que tienen su versión sufijada:
+
+```r
+panel <- organize_panels(bases = lista_bases, variables = c("P21", "ESTADO"), window = "trimestral")
+
+# Columnas de identificación del panel (sin sufijo, se conservan tal cual)
+id_vars <- c("CODUSU", "NRO_HOGAR", "COMPONENTE")
+
+# Descartar columnas sin sufijo que tienen versión _t0/_t1
+vars_sufijadas <- names(panel)[grepl("_t[01]$", names(panel))]
+bases_sufijadas <- unique(sub("_t[01]$", "", vars_sufijadas))
+cols_a_descartar <- setdiff(bases_sufijadas, id_vars)
+
+panel_limpio <- panel |> select(-any_of(cols_a_descartar))
+
+# Ahora pivot_longer funciona correctamente
+panel_long <- panel_limpio |>
+  pivot_longer(
+    cols      = matches("_t[01]$"),
+    names_to  = c(".value", "tiempo"),
+    names_pattern = "^(.+)_(t[01])$"
+  )
+```
+
+**Ejemplo completo:**
 ```r
 lista_bases <- list(toybase_individual_2016_03, toybase_individual_2016_04)
 pool_trimestral <- organize_panels(
