@@ -282,6 +282,12 @@ Sin inventar nombres de variables. Sin ponderadores incorrectos. Sin mezclar per
 
 ---
 
+## Autor
+
+Desarrollado por [Matías De Natale](https://github.com/matias-denatale).
+
+---
+
 ## Licencia
 
 MIT. Usalo, modificálo, compartilo. Si lo mejorás, mandá un PR.

@@ -2,6 +2,7 @@
 name = "eph-context"
 version = "0.1.0"
 description = "MCP server — EPH INDEC microdata design records, methodology, and package docs"
+authors = [{ name = "Matías De Natale", email = "denatale.mati@gmail.com" }]
 requires-python = ">=3.11"
 dependencies = [
     "mcp>=1.0.0",
