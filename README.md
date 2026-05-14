@@ -28,7 +28,7 @@
 | **ChatGPT** (web, sin instalar nada) | Ninguna | [→ ChatGPT](#chatgpt--sin-instalar-nada) |
 | **Claude Desktop** | Muy simple | [→ Claude Desktop](#claude-desktop) |
 | **Cursor** | Muy simple | [→ Cursor](#cursor) |
-| **VS Code** | Muy simple | [→ vs-code) |
+| **VS Code** | Muy simple | [→ VS Code](#vs-code) |
 | **Claude Code** (terminal) | Para desarrolladores | [→ Claude Code CLI](#claude-code-cli) |
 
 ---
