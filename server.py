@@ -20,8 +20,8 @@ mcp = FastMCP(
 )
 
 _DESIGN = {
-    "continua_pre": "EPH_PRE_4T2023.md",
-    "continua_post": "EPH_POST_4T2023.md",
+    "31_aglomerados_pre": "EPH_PRE_4T2023.md",
+    "31_aglomerados_post": "EPH_POST_4T2023.md",
     "total_urbano_pre": "EPH_TotUrbano_PRE_4T2023.md",
     "total_urbano_post": "EPH_TotUrbano_POST_4T2023.md",
 }
@@ -104,37 +104,23 @@ def eph_setup() -> dict:
     }
 
 
-_RULES_HEADER = """
-=== EPH CRITICAL RULES — READ BEFORE WRITING CODE ===
-WEIGHTS (never skip, never guess):
-  Persons       → PONDERA
-  Households    → PONDIH
-  Labor income  → PONDIIO
-
-MERGE hogar+individual requires ALL FOUR keys:
-  CODUSU + NRO_HOGAR + ANO4 + TRIMESTRE
-
-SERIES BREAK at 4T2023: variable names and codes changed.
-  Data before/after is NOT directly comparable.
-
-DO NOT use variable names or function names from memory.
-Use only names from the tools below.
-=== END RULES ===
-
-"""
+_RULES_HEADER = _CRITICAL_RULES
 
 
-def _read(path: Path) -> str:
-    return path.read_text(encoding="utf-8")
+def _read(path: str) -> str:
+    try:
+        return (ASSETS / path).read_text(encoding="utf-8")
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Asset no encontrado: {path}")
 
 
-def _read_with_rules(path: Path) -> str:
-    return _RULES_HEADER + path.read_text(encoding="utf-8")
+def _read_with_rules(path: str) -> str:
+    return _RULES_HEADER + _read(path)
 
 
 def _invalid(param: str, value: str, valid: dict) -> str:
     opts = ", ".join(f'"{k}"' for k in valid)
-    return f'Error: {param}="{value}" is not valid. Must be one of: {opts}'
+    raise ValueError(f'Error: {param}="{value}" is not valid. Must be one of: {opts}')
 
 
 @mcp.tool()
@@ -147,16 +133,16 @@ def get_design_record(tipo: str) -> str:
     Do NOT use variable names from memory — they change between periods.
 
     tipo values:
-      "continua_pre"       — EPH Continua, quarters BEFORE 4T2023
-      "continua_post"      — EPH Continua, FROM 4T2023 onward (redesigned variables)
-      "total_urbano_pre"   — EPH Total Urbano, before 4T2023
-      "total_urbano_post"  — EPH Total Urbano, from 4T2023 onward
+      "31_aglomerados_pre"   — EPH 31 aglomerados urbanos, quarters BEFORE 4T2023
+      "31_aglomerados_post"  — EPH 31 aglomerados urbanos, FROM 4T2023 onward (redesigned variables)
+      "total_urbano_pre"     — EPH Total Urbano, before 4T2023
+      "total_urbano_post"    — EPH Total Urbano, from 4T2023 onward
 
     If the user has not specified the period, ASK before calling this tool.
     """
     if tipo not in _DESIGN:
         return _invalid("tipo", tipo, _DESIGN)
-    return _read_with_rules(ASSETS / "design" / _DESIGN[tipo])
+    return _read_with_rules(f"design/{_DESIGN[tipo]}")
 
 
 @mcp.tool()
@@ -178,7 +164,7 @@ def get_methodology(tema: str) -> str:
     """
     if tema not in _METHODOLOGY:
         return _invalid("tema", tema, _METHODOLOGY)
-    return _read(ASSETS / "methodology" / _METHODOLOGY[tema])
+    return _read(f"methodology/{_METHODOLOGY[tema]}")
 
 
 @mcp.tool()
@@ -190,7 +176,7 @@ def get_classifiers() -> str:
     Use this to correctly interpret or recode occupation variables (PP04D_COD, P47T).
     Includes all 5-digit codes, descriptions, and qualification categories.
     """
-    return _read(ASSETS / "classifiers" / "cno_2001.md")
+    return _read("classifiers/cno_2001.md")
 
 
 @mcp.tool()
@@ -208,7 +194,7 @@ def get_package_docs(lang: str) -> str:
     """
     if lang not in _PACKAGES:
         return _invalid("lang", lang, _PACKAGES)
-    return _read_with_rules(ASSETS / "tools" / _PACKAGES[lang])
+    return _read_with_rules(f"tools/{_PACKAGES[lang]}")
 
 
 def main() -> None:

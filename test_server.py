@@ -43,18 +43,18 @@ def test_design_record_has_key_variables(tipo):
 
 
 def test_design_record_invalid_tipo():
-    result = get_design_record("no_existe")
-    assert "Error" in result
+    with pytest.raises(ValueError, match="Error"):
+        get_design_record("no_existe")
 
 
-def test_design_continua_post_has_empleo_sector():
-    result = get_design_record("continua_post")
+def test_design_31_aglomerados_post_has_empleo_sector():
+    result = get_design_record("31_aglomerados_post")
     assert "EMPLEO" in result
     assert "SECTOR" in result
 
 
-def test_design_continua_pre_no_empleo_sector():
-    result = get_design_record("continua_pre")
+def test_design_31_aglomerados_pre_no_empleo_sector():
+    result = get_design_record("31_aglomerados_pre")
     # EMPLEO y SECTOR solo existen en POST 4T2023
     assert "EMPLEO" not in result
     assert "SECTOR" not in result
@@ -82,7 +82,7 @@ def test_design_total_urbano_has_provincia():
 
 
 def test_design_continua_no_provincia():
-    for tipo in ["continua_pre", "continua_post"]:
+    for tipo in ["31_aglomerados_pre", "31_aglomerados_post"]:
         result = get_design_record(tipo)
         assert "PROVINCIA" not in result, f"{tipo} no debería tener PROVINCIA"
 
@@ -97,8 +97,8 @@ def test_methodology_returns_content(tema):
 
 
 def test_methodology_invalid_tema():
-    result = get_methodology("no_existe")
-    assert "Error" in result
+    with pytest.raises(ValueError, match="Error"):
+        get_methodology("no_existe")
 
 
 def test_methodology_ponderadores_has_all_weights():
@@ -130,8 +130,8 @@ def test_package_docs_returns_content(lang):
 
 
 def test_package_docs_invalid_lang():
-    result = get_package_docs("julia")
-    assert "Error" in result
+    with pytest.raises(ValueError, match="Error"):
+        get_package_docs("julia")
 
 
 def test_package_docs_r_has_organize_panels_gotcha():
