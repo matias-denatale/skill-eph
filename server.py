@@ -2,6 +2,8 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
+CONTENT_VERSION = "2026-05-14"
+
 ASSETS = Path(__file__).parent / "assets"
 
 mcp = FastMCP(
@@ -101,6 +103,7 @@ def eph_setup() -> dict:
             "get_methodology(tema)": list(_METHODOLOGY.keys()),
             "get_package_docs(lang)": list(_PACKAGES.keys()),
         },
+        "content_version": CONTENT_VERSION,
     }
 
 
@@ -168,15 +171,33 @@ def get_methodology(tema: str) -> str:
 
 
 @mcp.tool()
-def get_classifiers() -> str:
+def get_classifiers(filter: str = "") -> str:
     """
     Returns the complete CNO 2001 (Clasificador Nacional de Ocupaciones).
 
     Call eph_setup() first if you have not already.
     Use this to correctly interpret or recode occupation variables (PP04D_COD, P47T).
     Includes all 5-digit codes, descriptions, and qualification categories.
+
+    Pass filter to get only matching lines (case-insensitive substring match).
     """
-    return _read("classifiers/cno_2001.md")
+    content = _read("classifiers/cno_2001.md")
+    if filter:
+        lines = [l for l in content.splitlines() if filter.lower() in l.lower()]
+        return "\n".join(lines) if lines else f"No matches for '{filter}'"
+    return content
+
+
+@mcp.tool()
+def search_variable(name: str) -> dict:
+    """Search a variable by partial name or description across all design records."""
+    results = {}
+    for key, filename in _DESIGN.items():
+        content = _read(f"design/{filename}")
+        matches = [l for l in content.splitlines() if name.lower() in l.lower()]
+        if matches:
+            results[key] = matches
+    return results if results else {"found": False, "query": name}
 
 
 @mcp.tool()

@@ -9,6 +9,7 @@ from server import (
     get_methodology,
     get_package_docs,
     get_classifiers,
+    search_variable,
     _DESIGN,
     _METHODOLOGY,
     _PACKAGES,
@@ -146,3 +147,46 @@ def test_classifiers_returns_content():
     result = get_classifiers()
     assert isinstance(result, str)
     assert len(result) > 1000
+
+
+def test_classifiers_filter():
+    result = get_classifiers(filter="transporte")
+    assert "transporte" in result.lower()
+
+
+def test_classifiers_filter_no_match():
+    result = get_classifiers(filter="XXXXXX_NO_EXISTE")
+    assert "No matches" in result
+
+
+# ── search_variable ────────────────────────────────────────────────────────────
+
+def test_search_variable_finds_result():
+    result = search_variable("PONDERA")
+    assert isinstance(result, dict)
+    assert any(len(v) > 0 for v in result.values())
+
+
+def test_search_variable_no_result():
+    result = search_variable("XXXXXX_NO_EXISTE")
+    assert result == {"found": False, "query": "XXXXXX_NO_EXISTE"}
+
+
+def test_search_variable_partial_match():
+    result = search_variable("ingreso")
+    assert isinstance(result, dict)
+    assert len(result) > 0
+
+
+def test_search_variable_all_designs():
+    result = search_variable("CODUSU")
+    assert set(result.keys()) == set(_DESIGN.keys())
+
+
+# ── content versioning ─────────────────────────────────────────────────────────
+
+def test_content_version_in_setup():
+    result = eph_setup()
+    assert "content_version" in result
+    assert isinstance(result["content_version"], str)
+    assert len(result["content_version"]) == 10  # YYYY-MM-DD
