@@ -62,7 +62,14 @@ CRITICAL EPH RULES — memorize these before writing any code:
    Common mistakes from training data: wrong column names, wrong category codes,
    variables that exist in one period but not the other.
 
-5. PACKAGE FUNCTIONS — do not guess. Call get_package_docs() first.
+5. TWO SURVEYS — completely different concepts, do NOT confuse them:
+   EPH 31 aglomerados urbanos: 31 cities, published EVERY quarter (T1/T2/T3/T4).
+   EPH Total Urbano: ALL urban localities ≥2,000 inhabitants, published ONCE a year (T3 only).
+   The difference is GEOGRAPHIC COVERAGE only — same questionnaire content.
+   The 4T2023 series break affected BOTH surveys simultaneously.
+   Do NOT say "EPH Continua" — say "EPH 31 aglomerados urbanos".
+
+6. PACKAGE FUNCTIONS — do not guess. Call get_package_docs() first.
    Common mistakes: wrong function names, wrong argument names, outdated API.
 """
 

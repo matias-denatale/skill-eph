@@ -1,5 +1,9 @@
 # Consideraciones metodológicas: Quiebre de serie en 4T2023
 
+## IMPORTANTE: el quiebre afectó a AMBAS encuestas
+
+El quiebre de cuestionario del 4T2023 afectó simultáneamente a la **EPH 31 aglomerados urbanos** y a la **EPH Total Urbano**. No es un fenómeno exclusivo de una de las dos operaciones estadísticas. No tiene ninguna relación con la distinción entre ambas encuestas — esa diferencia es exclusivamente geográfica (cobertura territorial), no metodológica.
+
 A partir del 4° trimestre de 2023, el INDEC implementó modificaciones metodológicas en el cuestionario de la EPH, lo que generó un **quiebre de serie histórica**.
 
 ## Cambios documentados
