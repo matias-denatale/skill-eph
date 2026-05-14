@@ -12,7 +12,7 @@ A partir del 4° trimestre de 2023, el INDEC implementó modificaciones metodol�
 - **Nuevas formas de trabajo:** Se introdujeron preguntas específicas para captar el empleo mediante plataformas digitales, aplicaciones y trabajo remoto.
 
 ## Variables afectadas
-- **Modificadas/Reemplazadas:** Las variables clásicas de características ocupacionales como `PP04D_COD` cambiaron su codificación. `PP03C` (tipo de ocupación) y `PP04A` experimentaron cambios en las opciones para incluir trabajo de plataformas.
+- **Modificadas/Reemplazadas:**  `PP03C` (tipo de ocupación) y `PP04A` experimentaron cambios en las opciones para incluir trabajo de plataformas.
 - Para procesar datos a partir de 4T2023, es OBLIGATORIO usar el **Diseño de Registro POS 4T2023**.
 
 ## Análisis de series de tiempo

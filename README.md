@@ -16,49 +16,93 @@
 
 ---
 
-<blockquote>
-<strong>Contexto EPH correcto para cualquier modelo de IA, en cualquier IDE.</strong><br>
-Inyecta los diseños de registro oficiales del INDEC y las reglas metodológicas directamente en el contexto del modelo — como MCP server o como Claude Code skill.<br>
-<strong>Resultado: código que respeta la realidad de los datos, sin alucinaciones.</strong>
-</blockquote>
+> **Los modelos de IA alucinan variables de la EPH que no existen, aplican mal los ponderadores y se olvidan del panel rotante.**
+> eph-context le da al modelo los diseños de registro oficiales del INDEC y las reglas metodológicas antes de que escriba una línea. Resultado: código correcto, sin inventos.
 
 ---
 
-## ¿Para quién es esto?
+## ¿Qué herramienta usás?
 
-> **¿Investigador de la EPH que no confía en que la IA respete la metodología?**
-> Esta herramienta le da al modelo el manual del INDEC antes de que escriba una línea. No improvisa — lee la documentación real.
-
-> **¿Usuario eventual que quiere hacer cruces sin saberse de memoria las variables?**
-> Los diseños de registro completos y la documentación metodológica están disponibles para el modelo en cada consulta.
-
-> **¿Experto que quiere que la IA le ahorre tiempo sin cometer errores básicos?**
-> Exactamente para eso fue creado.
-
----
-
-## El problema: las alucinaciones existen y la EPH no perdona
-
-Los modelos de lenguaje alucinan. Una variable que no existe, un ponderador mal aplicado, un tratamiento incorrecto del panel rotante — puede invalidar todo un análisis sin que te des cuenta.
-
-**eph-context viene a solucionar eso.**
-
-En lugar de dejar que el modelo "recuerde" cómo funciona la EPH, le inyecta en el contexto los diseños de registro oficiales, la metodología documentada y las reglas de tratamiento de variables. El resultado: código que respeta la realidad de los microdatos.
+| Herramienta | Instalación | Sección |
+|-------------|-------------|---------|
+| **ChatGPT** (web, sin instalar nada) | Ninguna | [→ ChatGPT](#chatgpt--sin-instalar-nada) |
+| **Claude Desktop** | Muy simple | [→ Claude Desktop](#claude-desktop) |
+| **Cursor** | Muy simple | [→ Cursor](#cursor) |
+| **VS Code** | Muy simple | [→ vs-code) |
+| **Claude Code** (terminal) | Para desarrolladores | [→ Claude Code CLI](#claude-code-cli) |
 
 ---
 
-## Instalación
+## ChatGPT — sin instalar nada
 
-### Opción A — MCP server (Claude Desktop, Cursor, VS Code, cualquier cliente MCP)
+La opción más simple. Funciona directamente en [chatgpt.com](https://chatgpt.com) creando un **GPT personalizado** con el conocimiento de la EPH incluido.
 
-Requiere [uv](https://docs.astral.sh/uv/getting-started/installation/).
+### Qué vas a necesitar
+- Una cuenta de ChatGPT (gratuita o de pago)
+- Los archivos de la carpeta `assets/` de este repositorio
 
-**1. Cloná el repo:**
+### Pasos
+
+**1. Descargá los archivos de conocimiento**
+
+Andá a la [página principal del repositorio](https://github.com/matias-denatale/eph-context) en GitHub, hacé clic en el botón verde **Code → Download ZIP** y descomprimí el archivo en tu computadora.
+
+**2. Creá un GPT personalizado**
+
+En [chatgpt.com](https://chatgpt.com):
+- Hacé clic en tu nombre (abajo a la izquierda) → **My GPTs** → **Create a GPT**
+- En la pestaña **Configure**, completá:
+  - **Name:** `Asistente EPH INDEC`
+  - **Instructions:** copiá y pegá todo el contenido del archivo `gpt_instructions.md` que está en este repositorio
+
+**3. Subí los archivos de conocimiento**
+
+En la misma pantalla de configuración, en la sección **Knowledge**, hacé clic en **Upload files** y subí todos los archivos `.md` de la carpeta `assets/` (design, methodology, classifiers, tools).
+
+**4. Guardá y empezá a usarlo**
+
+Hacé clic en **Save** (arriba a la derecha) y listo. Podés empezar a preguntarle sobre la EPH o pedirle que te escriba código.
+
+> **Nota:** Para subir archivos de conocimiento necesitás ChatGPT Plus (pago). Con la versión gratuita podés pegar el contenido de los archivos directamente en el chat cuando lo necesites.
+
+---
+
+## Claude Desktop
+
+Claude Desktop es la aplicación de escritorio de Anthropic. Si no la tenés, descargala desde [claude.ai/download](https://claude.ai/download).
+
+### Lo que vas a necesitar instalar primero: `uv`
+
+`uv` es una herramienta que maneja las dependencias de Python. Sin ella no va a funcionar.
+
+**En Mac o Linux**, abrí la Terminal y pegá:
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**En Windows**, abrí PowerShell y pegá:
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Cerrá y volvé a abrir la terminal después de instalar.
+
+### Pasos
+
+**1. Descargá este repositorio**
+
+Si tenés `git` instalado, en la terminal:
 ```bash
 git clone https://github.com/matias-denatale/eph-context.git
 ```
 
-**2. Agregá esto a tu `claude_desktop_config.json` (u otro cliente MCP):**
+Si no tenés `git`, descargá el ZIP desde GitHub (botón verde **Code → Download ZIP**) y descomprimilo donde quieras. Guardá la ruta de la carpeta — la vas a necesitar.
+
+**2. Abrí el archivo de configuración de Claude Desktop**
+
+Andá a Claude Desktop → menú **Claude** (arriba) → **Settings** → **Developer** → **Edit Config**.
+
+Se va a abrir un archivo `claude_desktop_config.json`. Si está vacío, pegá esto directamente:
 
 ```json
 {
@@ -76,83 +120,136 @@ git clone https://github.com/matias-denatale/eph-context.git
 }
 ```
 
-En Windows: `"C:\\ruta\\a\\eph-context"`. En Mac/Linux: `/ruta/a/eph-context`.
+Si ya tiene contenido, agregá solo la parte de `"eph": { ... }` dentro de `"mcpServers"`.
 
-**3. Reiniciá el cliente.** Las tools EPH aparecen disponibles automáticamente.
+**3. Reemplazá la ruta**
+
+Cambiá `/ruta/a/eph-context` por la ruta real donde descomprimiste el repositorio.
+
+- **Mac/Linux:** algo como `/Users/tu-nombre/eph-context`
+- **Windows:** algo como `C:\\Users\\tu-nombre\\eph-context` (con doble barra invertida)
+
+**4. Guardá y reiniciá Claude Desktop**
+
+Cerrá y volvé a abrir Claude Desktop. Las herramientas EPH van a aparecer disponibles — las podés ver haciendo clic en el ícono de herramientas (🔧) en el chat.
 
 ---
 
-### Opción B — Claude Code skill (Claude Code CLI)
+## Cursor
 
-**1. Cloná el repo en tu carpeta de skills:**
+Cursor es un IDE basado en VS Code con IA integrada. Si no lo tenés, descargalo desde [cursor.com](https://cursor.com).
+
+Necesitás tener `uv` instalado (ver instrucciones en [la sección de Claude Desktop](#lo-que-vas-a-necesitar-instalar-primero-uv)).
+
+### Pasos
+
+**1. Descargá este repositorio** (igual que en Claude Desktop, paso 1)
+
+**2. Abrí la configuración de MCP en Cursor**
+
+Cursor → **Settings** → **Cursor Settings** → **MCP** → **Add new MCP server**
+
+O bien editá el archivo `~/.cursor/mcp.json` directamente y agregá:
+
+```json
+{
+  "mcpServers": {
+    "eph": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/ruta/a/eph-context",
+        "run",
+        "server.py"
+      ]
+    }
+  }
+}
+```
+
+**3. Reemplazá la ruta y reiniciá Cursor**
+
+---
+
+## VS Code
+
+Necesitás la extensión **GitHub Copilot** o **Continue** con soporte MCP.
+
+Necesitás tener `uv` instalado (ver instrucciones en [la sección de Claude Desktop](#lo-que-vas-a-necesitar-instalar-primero-uv)).
+
+### Pasos
+
+**1. Descargá este repositorio** (igual que en Claude Desktop, paso 1)
+
+**2. Editá el archivo de configuración MCP**
+
+Creá o editá `.vscode/mcp.json` en tu proyecto:
+
+```json
+{
+  "servers": {
+    "eph": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/ruta/a/eph-context",
+        "run",
+        "server.py"
+      ]
+    }
+  }
+}
+```
+
+**3. Reemplazá la ruta y reiniciá VS Code**
+
+---
+
+## Claude Code CLI
+
+Para usuarios del CLI de Claude Code en terminal.
+
+**1. Cloná el repositorio en tu carpeta de skills:**
 ```bash
 git clone https://github.com/matias-denatale/eph-context.git ~/.claude/skills/eph
 ```
 
-**2. Agregá esto a tu `~/.claude/CLAUDE.md`:**
+**2. Agregá esta línea a tu `~/.claude/CLAUDE.md`** en la tabla de skills:
 ```markdown
 | EPH microdata, usu_hogar, usu_individual, scripts R/Python con EPH | `~/.claude/skills/eph/SKILL.md` |
 ```
 
-La skill se activa automáticamente cuando Claude Code detecta consultas relacionadas con la EPH, microdatos INDEC, o variables como `CODUSU`, `PONDERA`, `ESTADO`, etc.
+La skill se activa automáticamente cuando Claude Code detecta consultas sobre EPH, variables como `CODUSU`, `PONDERA`, `ESTADO`, etc.
+
+---
+
+## ¿Qué sabe hacer?
+
+Una vez instalado, podés pedirle cosas como:
+
+- *"Calculá la tasa de desocupación para el 2do trimestre de 2024 con R"*
+- *"¿Qué es el panel rotante y cómo afecta el análisis longitudinal?"*
+- *"Escribime un script en Python para calcular informalidad laboral"*
+- *"¿Cómo mergeo las bases de hogar e individual?"*
+- *"¿Qué variables cambaron en el 4T2023?"*
+
+El modelo siempre consulta los diseños de registro y la metodología oficial antes de responder. No adivina, no improvisa.
 
 ---
 
 ## ¿Qué incluye?
 
-| Categoría | Contenido |
-|-----------|-----------|
-| **Diseños de registro** | Variables, categorías y codificaciones para los diseños PRE y POST del 4T2023 — EPH Continua y Total Urbano |
-| **Reglas metodológicas** | Uso correcto de ponderadores (`PONDERA`, `PONDIH`, `PONDIIO`), panel rotante, quiebres de serie, informalidad laboral, indicadores del mercado de trabajo |
-| **Referencia de packages** | Documentación completa del paquete `eph` para R y la librería `pyeph` para Python |
-| **Clasificador CNO 2001** | El Clasificador Nacional de Ocupaciones completo con estructura de 5 dígitos |
-
-### Tools MCP disponibles
-
-| Tool | Parámetro | Para qué |
-|------|-----------|----------|
-| `list_topics` | — | Lista todos los valores válidos de cada tool |
-| `get_design_record` | `tipo` | Diccionario de variables del diseño de registro |
-| `get_methodology` | `tema` | Documentación metodológica por tema |
-| `get_classifiers` | — | CNO 2001 completo |
-| `get_package_docs` | `lang` | API del paquete R o Python |
-
----
-
-## Estructura del repositorio
-
-```
-eph-context/
-├── server.py             # MCP server (FastMCP, 5 tools)
-├── pyproject.toml        # Dependencias (mcp>=1.0.0)
-├── SKILL.md              # Instrucciones para Claude Code skill
-├── README.md             # Este archivo
-└── assets/
-    ├── design/           # Diccionarios de variables por diseño de registro
-    │   ├── EPH_PRE_4T2023.md
-    │   ├── EPH_POST_4T2023.md
-    │   ├── EPH_TotUrbano_PRE_4T2023.md
-    │   └── EPH_TotUrbano_POST_4T2023.md
-    ├── methodology/      # Documentación metodológica curada
-    │   ├── que_es_la_eph.md
-    │   ├── ponderadores.md
-    │   ├── panel_rotante.md
-    │   ├── quiebre_serie_4t2023.md
-    │   ├── informalidad_laboral.md
-    │   ├── indicadores_mercado_laboral.md
-    │   └── eph_continua_vs_total_urbano.md
-    ├── tools/            # Referencia de packages de procesamiento EPH
-    │   ├── eph_package_r.md
-    │   └── pyeph_package.md
-    └── classifiers/      # Clasificadores oficiales INDEC
-        └── cno_2001.md
-```
+| Contenido | Qué es |
+|-----------|--------|
+| **Diseños de registro** | Variables, categorías y codificaciones para EPH Continua y Total Urbano, antes y después del 4T2023 |
+| **Reglas metodológicas** | Ponderadores, panel rotante, quiebre de serie, informalidad, indicadores de mercado de trabajo |
+| **Documentación de packages** | Paquete `eph` para R y librería `pyeph` para Python |
+| **Clasificador CNO 2001** | Clasificador Nacional de Ocupaciones completo (5 dígitos) |
 
 ---
 
 ## Agradecimientos
-
-Esta herramienta se apoya en el conocimiento abierto de la comunidad:
 
 - **[Diego Kozlowski](https://github.com/DiegoKoz)** — creador del [paquete `eph`](https://github.com/ropensci/eph) para R
 - **[Guido Weksler](https://github.com/Guidowe)** — [Introducción a R para Ciencias Sociales](https://guidowe.github.io/Curso-R-Flacso/)
