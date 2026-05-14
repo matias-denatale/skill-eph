@@ -38,7 +38,7 @@
 La opción más simple. Funciona directamente en [chatgpt.com](https://chatgpt.com) creando un **GPT personalizado** con el conocimiento de la EPH incluido.
 
 ### Qué vas a necesitar
-- Una cuenta de ChatGPT (gratuita o de pago)
+- Una cuenta de **ChatGPT Plus** (pago) — necesaria para subir archivos de conocimiento a un GPT personalizado
 - Los archivos de la carpeta `assets/` de este repositorio
 
 ### Pasos
