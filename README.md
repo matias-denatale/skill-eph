@@ -238,6 +238,31 @@ El modelo siempre consulta los diseños de registro y la metodología oficial an
 
 ---
 
+## Ejemplo de sesión
+
+**Usuario:** Calculá la tasa de desocupación para el 4T2024 con R.
+
+**El modelo (internamente):**
+1. `eph_setup()` → recibe workflow obligatorio + reglas críticas
+2. `get_design_record("31_aglomerados_post")` → variables `ESTADO`, `PONDERA` y sus categorías exactas
+3. `get_methodology("indicadores_mercado_laboral")` → fórmula oficial INDEC
+
+**Respuesta del modelo:**
+```r
+library(eph)
+
+base <- get_microdata(year = 2024, trimester = 4, type = "individual")
+
+base |>
+  summarise(
+    desocupacion = sum(PONDERA[ESTADO == 2]) / sum(PONDERA[ESTADO %in% c(1, 2)]) * 100
+  )
+```
+
+Sin inventar nombres de variables. Sin ponderadores incorrectos. Sin mezclar períodos pre/post 4T2023.
+
+---
+
 ## ¿Qué incluye?
 
 | Contenido | Qué es |
