@@ -1,11 +1,12 @@
 <div align="center">
 
-#  Skill EPH
+# eph-context
 
 ### Que la IA escriba tu código de EPH sin inventar lo que no existe
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
-[![Claude Code](https://img.shields.io/badge/claude_code-skill-8A2BE2)](https://claude.ai)
+[![MCP](https://img.shields.io/badge/MCP-server-8A2BE2)](https://modelcontextprotocol.io)
+[![Claude Code](https://img.shields.io/badge/Claude_Code-skill-black)](https://claude.ai/code)
 [![EPH](https://img.shields.io/badge/EPH-INDEC-0056A0)](https://www.indec.gob.ar/indec/web/Institucional-Indec-Bases-EPH)
 [![R](https://img.shields.io/badge/R-ready-276DC3?logo=r)](https://www.r-project.org/)
 [![Python](https://img.shields.io/badge/Python-ready-3776AB?logo=python)](https://www.python.org/)
@@ -15,103 +16,124 @@
 ---
 
 <blockquote>
-<strong>Usá inteligencia artificial para procesar los microdatos de la EPH sin miedo a que el modelo invente variables, aplique mal los ponderadores o se olvide del panel rotante.</strong><br>
-Esta skill inyecta los diseños de registro del INDEC y las reglas metodológicas directamente en el contexto del modelo.<br>
-<strong>Resultado: código que respeta la realidad de los datos.</strong>
+<strong>Contexto EPH correcto para cualquier modelo de IA, en cualquier IDE.</strong><br>
+Inyecta los diseños de registro oficiales del INDEC y las reglas metodológicas directamente en el contexto del modelo — como MCP server o como Claude Code skill.<br>
+<strong>Resultado: código que respeta la realidad de los datos, sin alucinaciones.</strong>
 </blockquote>
 
 ---
 
-##  ¿Para quién es esto?
+## ¿Para quién es esto?
 
-> **¿Sos investigador de la EPH y no estás acostumbrado a codear con inteligencia artificial?**
-> Esta skill te da la confianza de que el código que genera el modelo respeta las reglas metodológicas del INDEC. No vas a tener que andar corrigiendo errores como que use `PONDERA` mal o se olvide del panel rotante.
+> **¿Investigador de la EPH que no confía en que la IA respete la metodología?**
+> Esta herramienta le da al modelo el manual del INDEC antes de que escriba una línea. No improvisa — lee la documentación real.
 
-> **¿Sos un usuario eventual de la EPH que no sabe muy bien cómo funciona y querés hacer cruces y probar cosas?**
-> Acá tenés un punto de partida sólido. La skill incluye los diseños de registro completos y documentación metodológica curada. No necesitás saberte de memoria el manual del INDEC para empezar a trabajar.
+> **¿Usuario eventual que quiere hacer cruces sin saberse de memoria las variables?**
+> Los diseños de registro completos y la documentación metodológica están disponibles para el modelo en cada consulta.
 
-> **¿Sos un experto que a veces, en el apuro, no quiere escribir el código y quiere que la IA lo haga pero no confiás en ella?**
-> Te entiendo. Por eso creé esta skill: fuerza al modelo a leer las reglas antes de escribir código. No es magia — es darle contexto de calidad para que no invente.
-
----
-
-##  El problema: las alucinaciones existen y la EPH no perdona
-
-Los modelos de lenguaje alucinan. Es un hecho. Y cuando trabajás con la EPH, un error pequeño — una variable que no existe, un ponderador mal aplicado, un tratamiento incorrecto del panel rotante — te puede invalidar todo un análisis sin que te des cuenta.
-
-**Esta skill viene a solucionar eso.**
-
-En lugar de dejar que el modelo "recuerde" cómo funciona la EPH —que no es su punto fuerte—, la skill le inyecta en el contexto los diseños de registro oficiales, la metodología documentada y las reglas de tratamiento de variables. El resultado: código que respeta la realidad de los microdatos.
+> **¿Experto que quiere que la IA le ahorre tiempo sin cometer errores básicos?**
+> Exactamente para eso fue creado.
 
 ---
 
-##  ¿Qué es una skill y cómo funciona?
+## El problema: las alucinaciones existen y la EPH no perdona
 
-Una skill es un conjunto de instrucciones y archivos de contexto que se cargan automáticamente cuando el agente de IA detecta que estás trabajando con un tema específico — en este caso, la EPH.
+Los modelos de lenguaje alucinan. Una variable que no existe, un ponderador mal aplicado, un tratamiento incorrecto del panel rotante — puede invalidar todo un análisis sin que te des cuenta.
 
-### ¿Cómo funciona por el fondo?
+**eph-context viene a solucionar eso.**
 
-| Paso | Qué pasa |
-|:----:|----------|
-| **1** | Le pedís al agente algo como *"escribime un script en R que calcule la tasa de informalidad para el tercer trimestre de 2023"* |
-| **2** | El agente reconoce que estás hablando de la EPH y carga automáticamente `assets/design/` (diseños de registro con todas las variables) y `assets/methodology/` (reglas metodológicas) |
-| **3** | Con ese contexto cargado, el modelo genera el código. **No improvisa — lee la documentación real.** |
-
-> Es como darle el manual del INDEC al modelo justo antes de que escriba. Sin la skill, el modelo improvisa basándose en lo que "recuerda" de su entrenamiento. Con la skill, tiene la fuente de verdad a mano.
+En lugar de dejar que el modelo "recuerde" cómo funciona la EPH, le inyecta en el contexto los diseños de registro oficiales, la metodología documentada y las reglas de tratamiento de variables. El resultado: código que respeta la realidad de los microdatos.
 
 ---
 
-##  ¿Qué incluye?
+## Instalación
+
+### Opción A — MCP server (Claude Desktop, Cursor, VS Code, cualquier cliente MCP)
+
+Requiere [uv](https://docs.astral.sh/uv/getting-started/installation/).
+
+**1. Cloná el repo:**
+```bash
+git clone https://github.com/matias-denatale/eph-context.git
+```
+
+**2. Agregá esto a tu `claude_desktop_config.json` (u otro cliente MCP):**
+
+```json
+{
+  "mcpServers": {
+    "eph": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/ruta/a/eph-context",
+        "run",
+        "server.py"
+      ]
+    }
+  }
+}
+```
+
+En Windows: `"C:\\ruta\\a\\eph-context"`. En Mac/Linux: `/ruta/a/eph-context`.
+
+**3. Reiniciá el cliente.** Las tools EPH aparecen disponibles automáticamente.
+
+---
+
+### Opción B — Claude Code skill (Claude Code CLI)
+
+**1. Cloná el repo en tu carpeta de skills:**
+```bash
+git clone https://github.com/matias-denatale/eph-context.git ~/.claude/skills/eph
+```
+
+**2. Agregá esto a tu `~/.claude/CLAUDE.md`:**
+```markdown
+| EPH microdata, usu_hogar, usu_individual, scripts R/Python con EPH | `~/.claude/skills/eph/SKILL.md` |
+```
+
+La skill se activa automáticamente cuando Claude Code detecta consultas relacionadas con la EPH, microdatos INDEC, o variables como `CODUSU`, `PONDERA`, `ESTADO`, etc.
+
+---
+
+## ¿Qué incluye?
 
 | Categoría | Contenido |
 |-----------|-----------|
-|  **Diseños de registro** | Variables, categorías y codificaciones para los diseños PRE y POS del 4T2023 — EPH Continua y Tot Urbano |
-|  **Reglas metodológicas** | Uso correcto de ponderadores (`PONDERA`, `PONDIH`, `PONDII`), panel rotante, quiebres de serie, informalidad laboral, indicadores del mercado de trabajo |
-|  **Referencia de packages** | Documentación completa del paquete `eph` para R y la librería `pyeph` para Python: funciones, parámetros y ejemplos |
-|  **Clasificador CNO 2001** | El Clasificador Nacional de Ocupaciones completo (40 páginas INDEC) con su estructura de 5 dígitos y la tabla de todas las ocupaciones |
-|  **Orientación automática** | La skill guía al modelo para estructurar pipelines de datos respetando la metodología INDEC sin que vos le expliques cada detalle |
+| **Diseños de registro** | Variables, categorías y codificaciones para los diseños PRE y POST del 4T2023 — EPH Continua y Total Urbano |
+| **Reglas metodológicas** | Uso correcto de ponderadores (`PONDERA`, `PONDIH`, `PONDIIO`), panel rotante, quiebres de serie, informalidad laboral, indicadores del mercado de trabajo |
+| **Referencia de packages** | Documentación completa del paquete `eph` para R y la librería `pyeph` para Python |
+| **Clasificador CNO 2001** | El Clasificador Nacional de Ocupaciones completo con estructura de 5 dígitos |
+
+### Tools MCP disponibles
+
+| Tool | Parámetro | Para qué |
+|------|-----------|----------|
+| `list_topics` | — | Lista todos los valores válidos de cada tool |
+| `get_design_record` | `tipo` | Diccionario de variables del diseño de registro |
+| `get_methodology` | `tema` | Documentación metodológica por tema |
+| `get_classifiers` | — | CNO 2001 completo |
+| `get_package_docs` | `lang` | API del paquete R o Python |
 
 ---
 
-##  Agradecimientos
-
-Esta skill se apoya en el conocimiento abierto de la comunidad. Aproveché los recursos y cursos de tres referentes que vienen compartiendo material de calidad sobre el trabajo con microdatos de la EPH:
-
-- **[Diego Kozlowski](https://github.com/DiegoKoz)** — creador del [paquete `eph`](https://github.com/ropensci/eph) para R y del [Curso R EPH](https://github.com/DiegoKoz/Curso_R_EPH_clases)
-- **[Guido Weksler](https://github.com/Guidowe)** — [Introducción a R para Ciencias Sociales](https://guidowe.github.io/Curso-R-Flacso/) con aplicación práctica en la EPH
-- **[Pablo Tiscornia](https://github.com/Pablotis)** — [Curso R INDEC](https://github.com/pablotis/Curso_R_INDEC) e [introducción al procesamiento de datos de la EPH](https://pablotis.github.io/r_iigg/)
-
-Sin esa base comunitaria, esto no existiría. La skill no reemplaza ese conocimiento: lo empaqueta para que la IA lo use correctamente.
-
----
-
-##  Instalación
-
-```bash
-# 1. Cloná el repositorio en tu carpeta de skills
-git clone https://github.com/matias-denatale/skill-eph.git
-
-# 2. Configurá tu agente para que cargue los archivos de la skill
-#    (las instrucciones específicas dependen de tu plataforma)
-```
-
-La skill se activa automáticamente cuando el agente detecta consultas relacionadas con la EPH, microdatos del INDEC, o variables como `CODUSU`, `PONDERA`, `ESTADO`, etc.
-
----
-
-##  Estructura del repositorio
+## Estructura del repositorio
 
 ```
-skill-eph/
-├── SKILL.md              # Instrucciones y capacidades de la skill
+eph-context/
+├── server.py             # MCP server (FastMCP, 5 tools)
+├── pyproject.toml        # Dependencias (mcp>=1.0.0)
+├── SKILL.md              # Instrucciones para Claude Code skill
 ├── README.md             # Este archivo
 └── assets/
     ├── design/           # Diccionarios de variables por diseño de registro
-    │   ├── EPH_POS_4T2023.md
     │   ├── EPH_PRE_4T2023.md
-    │   ├── EPH_TotUrbano_POS_4T2023.md
-    │   └── EPH_TotUrbano_PRE_4T2023.md
+    │   ├── EPH_POST_4T2023.md
+    │   ├── EPH_TotUrbano_PRE_4T2023.md
+    │   └── EPH_TotUrbano_POST_4T2023.md
     ├── methodology/      # Documentación metodológica curada
+    │   ├── que_es_la_eph.md
     │   ├── ponderadores.md
     │   ├── panel_rotante.md
     │   ├── quiebre_serie_4t2023.md
@@ -119,14 +141,24 @@ skill-eph/
     │   ├── indicadores_mercado_laboral.md
     │   └── eph_continua_vs_total_urbano.md
     ├── tools/            # Referencia de packages de procesamiento EPH
-    │   ├── eph_package_r.md   # Paquete `eph` para R (ropensci, v1.0.2)
-    │   └── pyeph_package.md   # Librería `pyeph` para Python
+    │   ├── eph_package_r.md
+    │   └── pyeph_package.md
     └── classifiers/      # Clasificadores oficiales INDEC
-        └── cno_2001.md        # Clasificador Nacional de Ocupaciones 2001
+        └── cno_2001.md
 ```
 
 ---
 
-##  Licencia
+## Agradecimientos
 
-Este proyecto es abierto. Usalo, modificálo, compartilo. Si lo mejorás, mandá un PR así nos beneficiamos todos.
+Esta herramienta se apoya en el conocimiento abierto de la comunidad:
+
+- **[Diego Kozlowski](https://github.com/DiegoKoz)** — creador del [paquete `eph`](https://github.com/ropensci/eph) para R
+- **[Guido Weksler](https://github.com/Guidowe)** — [Introducción a R para Ciencias Sociales](https://guidowe.github.io/Curso-R-Flacso/)
+- **[Pablo Tiscornia](https://github.com/Pablotis)** — [Curso R INDEC](https://github.com/pablotis/Curso_R_INDEC)
+
+---
+
+## Licencia
+
+MIT. Usalo, modificálo, compartilo. Si lo mejorás, mandá un PR.
