@@ -97,8 +97,32 @@ def eph_setup() -> dict:
     }
 
 
+_RULES_HEADER = """
+=== EPH CRITICAL RULES — READ BEFORE WRITING CODE ===
+WEIGHTS (never skip, never guess):
+  Persons       → PONDERA
+  Households    → PONDIH
+  Labor income  → PONDIIO
+
+MERGE hogar+individual requires ALL FOUR keys:
+  CODUSU + NRO_HOGAR + ANO4 + TRIMESTRE
+
+SERIES BREAK at 4T2023: variable names and codes changed.
+  Data before/after is NOT directly comparable.
+
+DO NOT use variable names or function names from memory.
+Use only names from the tools below.
+=== END RULES ===
+
+"""
+
+
 def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+def _read_with_rules(path: Path) -> str:
+    return _RULES_HEADER + path.read_text(encoding="utf-8")
 
 
 def _invalid(param: str, value: str, valid: dict) -> str:
@@ -125,7 +149,7 @@ def get_design_record(tipo: str) -> str:
     """
     if tipo not in _DESIGN:
         return _invalid("tipo", tipo, _DESIGN)
-    return _read(ASSETS / "design" / _DESIGN[tipo])
+    return _read_with_rules(ASSETS / "design" / _DESIGN[tipo])
 
 
 @mcp.tool()
@@ -177,7 +201,7 @@ def get_package_docs(lang: str) -> str:
     """
     if lang not in _PACKAGES:
         return _invalid("lang", lang, _PACKAGES)
-    return _read(ASSETS / "tools" / _PACKAGES[lang])
+    return _read_with_rules(ASSETS / "tools" / _PACKAGES[lang])
 
 
 def main() -> None:
