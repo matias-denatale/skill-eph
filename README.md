@@ -1,4 +1,5 @@
 <div align="center">
+<img width="1280" height="640" alt="eph-context-social-card" src="https://github.com/user-attachments/assets/04456a10-a949-4814-a449-c0625590f439" />
 
 # eph-context
 
